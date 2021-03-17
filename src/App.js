@@ -1,24 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
-
+import React from "react";
+import { Replay } from "vimond-replay";
+import "vimond-replay/index.css";
+import HlsjsVideoStreamer from "vimond-replay/video-streamer/hlsjs";
+import ShakaVideoStreamer from "vimond-replay/video-streamer/shaka-player";
 function App() {
+  
+  const replayOptions = {
+    videoStreamer: {
+      hlsjs: {
+        customConfiguration: {
+          capLevelToPlayerSize: true,
+          maxBufferLength: 45,
+        },
+      },
+    },
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Replay
+      source="http://rolzwy7.usermd.net/hls/manifest.mpd"
+      initialPlaybackProps={replayOptions}
+    >
+      <ShakaVideoStreamer />
+    </Replay>
   );
 }
 
