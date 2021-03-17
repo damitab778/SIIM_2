@@ -4,7 +4,6 @@ import "vimond-replay/index.css";
 import HlsjsVideoStreamer from "vimond-replay/video-streamer/hlsjs";
 import ShakaVideoStreamer from "vimond-replay/video-streamer/shaka-player";
 function App() {
-  
   const replayOptions = {
     videoStreamer: {
       hlsjs: {
@@ -17,7 +16,7 @@ function App() {
   };
   return (
     <Replay
-      source="http://rolzwy7.usermd.net/hls/manifest.mpd"
+      source="http://rolzwy7.usermd.net/dash.mpd"
       initialPlaybackProps={replayOptions}
     >
       <ShakaVideoStreamer />
