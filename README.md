@@ -1,70 +1,113 @@
-# Getting Started with Create React App
+### Instalacja & Uruchomienie serwera
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aby zainstalować biblioteki:
 
-## Available Scripts
+```
+npm install
+```
 
-In the project directory, you can run:
+Aby uruchomić aplikacje lokalnie ( 127.0.0.1:8080 ):
 
-### `npm start`
+```
+npm run dev
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Wygenerowane pliki aplikacji dostępne są pod /dist/
+Po tym aplikacja powinna być dostępna pod: [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Budowanie aplikacji (bez uruchamiania)
 
-### `npm test`
+Dobrze jest usunąć wszystko z /dist/
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+npm run build
+```
 
-### `npm run build`
+Wygenerowane pliki aplikacji dostępne są pod /dist/
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Generowanie plików w formacie MPEG-DASH
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+MPEG-DASH potrzebuje trzech rzeczy żeby działać:
+- plik manifestu
+- pliki (segmenty) video
+- pliki (segmenty) audio
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Plik manifestu jest w formacie XML i określa segmenty audio oraz video. Segmenty video mogą instnieć dla różnych jakości, ale ścieżka audio może być tylko jedna.
 
-### `npm run eject`
+Aby łatwo konwertować instniejące pliki video do formatu MPEG-DASH stworzony został skrypt batch `convert.bat` używający
+narzędzi `x264` oraz `MP4Box`. (muszą być one dostępne poprzez wierz poleceń, czyli ich pliki wykonywalne muszą być w zmiennej środowiskowej PATH)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Linki:
+- [Instalki x264](https://artifacts.videolan.org/x264/release-win64/)
+- [Instalki MP4Box](https://www.videohelp.com/software/MP4Box)
+- [Link do pliku convert.bat wraz z przykładowymi plikami video](https://drive.google.com/drive/folders/1e-TAymXZ5P2-HLOZ3diCdyiywbVxXBgp?usp=sharing)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Zakładamy poniższy układ plików i folderów:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```
+.
++-- data
+|   +-- 144p.mp4
+|   +-- 240p.mp4
+|   +-- 360p.mp4
+|   +-- 480p.mp4
+|   +-- 720p.mp4
+|   +-- 1080p.mp4
++-- convert.bat
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Po uruchomieniu skryptu zostanie wygenerowany plik manifestu wraz z segmentami.
+Finalny układ plików:
 
-## Learn More
+```
+.
++-- data
++-- out_144p_300k
++-- out_240p_400k
++-- out_360p_1200k
++-- out_480p_1500k
++-- out_720p_2750k
++-- out_1080p_6000k
++-- audio_segments
++-- manifest.mpd
++-- convert.bat
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+out_\*_\* to foldery z segmentami video. audio_segments to folder z segmentami audio.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Jak to uruchomić aby można było testować adaptacyjny streaming ?
 
-### Code Splitting
+Żeby uniezaleznić testy od sieci należy uruchomić wszystko lokalnie:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+1. Trzeba wygenerować pliki z "Generowanie plików w formacie MPEG-DASH" oraz "Budowanie aplikacji (bez uruchamiania)"
+2. Trzeba skopiować pliki z /dist/ oraz wszystkie foldery out_\*, audio_segments i manifest jednego folderu
 
-### Analyzing the Bundle Size
+Np. folder `webapp` a w nim:
+```
++-- App.81e103fe.css.map
++-- App.92ba1062.js
++-- App.92ba1062.js.map
++-- audio_segments
++-- index.html
++-- manifest.mpd
++-- out_1080p_6000k
++-- out_144p_300k
++-- out_240p_400k
++-- out_360p_1200k
++-- out_480p_1500k
++-- out_720p_2750k
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+i teraz w tym folderze trzeba uruchomić serwer http lokalny np. poprzez xammp'a (wtedy wszystko trzeba skopiować do htdocs) albo jak ma się pythona w wersji 3
+to wystarczy wejść wierszem poleceń w ten folder ze wszystkim i wpisać:
 
-### Making a Progressive Web App
+```
+python -m http.server --bind 127.0.0.1 8080
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+W każdym razie folder w którym jest bezpośrednio index.html ma byc tzw. webroot'em ("web root is simply the physical directory on the server OS that your HTTP server is treating as root (/) for the domain.")
 
-### Advanced Configuration
+### Demo
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+link: [http://rolzwy7.usermd.net/](http://rolzwy7.usermd.net/)
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

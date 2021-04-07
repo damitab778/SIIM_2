@@ -9,13 +9,12 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.3",
+    "vimond-replay": "^2.0.3",
     "web-vitals": "^1.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "parcel src/index.html --port 8080",
+    "build": "parcel build src/index.html"
   },
   "eslintConfig": {
     "extends": [
